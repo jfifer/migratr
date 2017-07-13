@@ -25,6 +25,22 @@ def index():
     return render_template(
         'home.html')
 
+@app.route("/login", methods=['POST'])
+def login():
+    user = request.form['username']
+    password = request.form['password']
+    db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
+    cnx = db.connect()
+    query = "SELECT userId FROM user WHERE email='%s' AND password=SHA1('%s')" % (user, password)
+    
+    result = cnx.execute(text(query))
+    row = result.fetchone()
+    if row is None:
+        session['logged_in'] = False
+        return "-1"
+    session['logged_in'] = True
+    return redirect("/")
+
 @app.route("/partner/<string:partner>", methods=['GET'])
 @requires_auth
 def partnerSearch(partner):
@@ -42,22 +58,15 @@ def customerSearch(resellerId, customer):
     query = "SELECT customerId, companyName FROM customer WHERE companyName LIKE '%s' AND resellerId=%s" % (customer+'%', resellerId)
     result = cnx.execute(text(query)).fetchall()
     return jsonify(dict(result))
- 
-@app.route("/login", methods=['POST'])
-def login():
-    user = request.form['username']
-    password = request.form['password']
+
+@app.route("/pbx/<int:resellerId>/<string:context>", methods=['GET'])
+@requires_auth
+def pbxSearch(resellerId, context):
     db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
     cnx = db.connect()
-    query = "SELECT userId FROM user WHERE email='%s' AND password=SHA1('%s')" % (user, password)
-    
-    result = cnx.execute(text(query))
-    row = result.fetchone()
-    if row is None:
-        session['logged_in'] = False
-        return "-1"
-    session['logged_in'] = True
-    return redirect("/")
+    query = "SELECT branchId, description FROM branch WHERE description LIKE '%s' AND resellerId=%s" % (context+'%', resellerId)
+    result = cnx.execute(text(query)).fetchall()
+    return jsonify(dict(result))
  
 if __name__ == "__main__":
     app.secret_key = os.urandom(12)

@@ -64,6 +64,30 @@ function customerSearch(name) {
     });
 }
 
+function pbxSearch(context) {
+    $.ajax({
+        url: '/pbx/'+RESELLERID+'/'+context,
+        type: 'GET',
+        success: function(res) {
+            var source  = [ ];
+            var mapping = { };
+            $.each(res, function(k, v) {
+                source.push(v);
+                mapping[v] = k;
+            });
+            $("#pbxSearchBox").autocomplete({
+                source: source,
+                select: function(e, ui) {
+                    BRANCHID = mapping[ui.item.value];
+                    $('#pbxSearchBox').val(BRANCHID);
+                }
+            });
+        }, error: function(res) {
+            console.log(res);
+        }
+    });
+}
+
 $(document).ready(function() {
     $('#resellerSearchBox').keyup(function(e) {
         e.preventDefault();
@@ -72,5 +96,9 @@ $(document).ready(function() {
     $('#customerSearchBox').keyup(function(e) {
         e.preventDefault();
         customerSearch($(this).val());
+    });
+    $('#pbxSearchBox').keyup(function(e) {
+        e.preventDefault();
+        pbxSearch($(this).val());
     });
 });
