@@ -1,24 +1,7 @@
-var RESELLERID;
-var CUSTOMERID;
-var BRANCHID;
-
-function login() {
+function getContextByCustomer(customerId) {
+    $("#pbxSearchBox").val(null);
     $.ajax({
-        url: '/login',
-        data: $('.form-signin').serialize(),
-        type: 'POST',
-        success: function(response) {
-            console.log(response);
-        },
-        error: function(error) {
-            console.log(error);
-        }
-    });
-}
-
-function partnerSearch(name) {
-    $.ajax({
-        url: '/partner/'+name,
+        url: '/pbx/'+customerId,
         type: 'GET',
         success: function(res) {
             var source  = [ ];
@@ -27,59 +10,36 @@ function partnerSearch(name) {
                 source.push(v);
                 mapping[v] = k;
             });
-            $("#resellerSearchBox").autocomplete({
-                source: source,
-                select: function(e, ui) {
-                    RESELLERID = mapping[ui.item.value];
-                    $('#resellerSearchBox').val(RESELLERID);
-                }
-            });
-        }, error: function(res) {
-            console.log(res);
-        }
-    });
-}
-
-function customerSearch(name) {
-    $.ajax({
-        url: '/customer/'+RESELLERID+'/'+name,
-        type: 'GET',
-        success: function(res) {
-            var source  = [ ];
-            var mapping = { };
-            $.each(res, function(k, v) {
-                source.push(v);
-                mapping[v] = k;
-            });
-            $("#customerSearchBox").autocomplete({
-                source: source,
-                select: function(e, ui) {
-                    CUSTOMERID = mapping[ui.item.value];
-                    $('#customerSearchBox').val(CUSTOMERID);
-                }
-            });
-        }, error: function(res) {
-            console.log(res);
-        }
-    });
-}
-
-function pbxSearch(context) {
-    $.ajax({
-        url: '/pbx/'+RESELLERID+'/'+context,
-        type: 'GET',
-        success: function(res) {
-            var source  = [ ];
-            var mapping = { };
-            $.each(res, function(k, v) {
-                source.push(v);
-                mapping[v] = k;
-            });
+            console.log(source);
             $("#pbxSearchBox").autocomplete({
                 source: source,
                 select: function(e, ui) {
                     BRANCHID = mapping[ui.item.value];
                     $('#pbxSearchBox').val(BRANCHID);
+                }
+            });
+        }, error: function(res) {
+            console.log(res);
+        }
+    }); 
+}
+
+function doSearch(url, target) {
+    $.ajax({
+        url: url,
+        type: 'GET',
+        success: function(res) {
+            var source  = [ ];
+            var mapping = { };
+            $.each(res, function(k, v) {
+                source.push(v);
+                mapping[v] = k;
+            });
+            target.autocomplete({
+                source: source,
+                select: function(e, ui) {
+                    RESELLERID = mapping[ui.item.value];
+                    target.val(RESELLERID);
                 }
             });
         }, error: function(res) {
@@ -91,14 +51,25 @@ function pbxSearch(context) {
 $(document).ready(function() {
     $('#resellerSearchBox').keyup(function(e) {
         e.preventDefault();
-        partnerSearch($(this).val());
+        url = "/partner/"+$(this).val();
+        doSearch(url, $(this));
     });
     $('#customerSearchBox').keyup(function(e) {
         e.preventDefault();
-        customerSearch($(this).val());
+        resellerId = $('#resellerSearchBox').val();
+        url = '/customer/'+resellerId+'/'+$(this).val();
+        doSearch(url, $(this));
+    }).click(function(e) {
+        e.preventDefault();
+        $('#pbxSearchBox').val('');
     });
     $('#pbxSearchBox').keyup(function(e) {
         e.preventDefault();
-        pbxSearch($(this).val());
+        resellerId = $('#resellerSearchBox').val();
+        url = '/pbx/'+resellerId+'/'+$(this).val();
+        doSearch(url, $(this));
+    }).click(function(e) {
+        e.preventDefault();
+        $('#customerSearchBox').val('');
     });
 });

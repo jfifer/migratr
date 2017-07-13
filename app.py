@@ -67,7 +67,16 @@ def pbxSearch(resellerId, context):
     query = "SELECT branchId, description FROM branch WHERE description LIKE '%s' AND resellerId=%s" % (context+'%', resellerId)
     result = cnx.execute(text(query)).fetchall()
     return jsonify(dict(result))
- 
+
+@app.route("/pbx/<int:customerId>", methods=['GET'])
+@requires_auth
+def getContextByCustomer(customerId):
+    db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
+    cnx = db.connect()
+    query = "SELECT b.branchId, b.description FROM branch b JOIN customer c ON b.customerId=c.customerId WHERE c.customerId=%s" % (customerId)
+    result = cnx.execute(text(query)).fetchone()
+    return jsonify(dict(result))
+
 if __name__ == "__main__":
     app.secret_key = os.urandom(12)
     app.run(debug=True)
