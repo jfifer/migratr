@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import Flask, flash, redirect, render_template, request, Response, session, abort
+from flask import Flask, flash, redirect, render_template, request, Response, session, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy as sqlalchemy
 from sqlalchemy import create_engine, text
 # from sqlalchemy.orm import scoped_session, sessionmaker
@@ -15,10 +15,10 @@ app = Flask(__name__)
 
 def requires_auth(f):
     @wraps(f)
-    def decorated(*args):
+    def decorated(*args, **kwargs):
         if not session.get('logged_in'):
             return render_template('login.html')
-        return f()
+        return f(*args, **kwargs)
     return decorated
 
 @app.route("/")
@@ -27,21 +27,14 @@ def index():
     return render_template(
         'home.html')
 
-@app.route("/partner/:partner")
-
-@app.route("/partnerSearch", methods=['GET', 'POST'])
+@app.route("/partner/<string:partner>", methods=['GET'])
 @requires_auth
-def partnerSearch():
-    reseller = request.form['reseller']
-    custPbx = request.form['customer']
-    
-    query = """select r.companyName, b.description, c.companyName
-            FROM reseller r
-            JOIN branch b on b.resellerId=r.resellerId
-            JOIN customer c on c.customerId=b.customerId
-            WHERE r.companyName LIKE '%s' AND (c.companyName LIKE '%s' OR b.description LIKE '%s')""" % (reseller+'%', custPbx+'%', custPbx+'%')
-    return query;
-    
+def partnerSearch(partner):
+    db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
+    cnx = db.connect()
+    query = "SELECT resellerId, companyName FROM reseller WHERE companyName LIKE '%s'" % (partner+'%')
+    result = cnx.execute(text(query)).fetchall()
+    return jsonify(dict(result))
  
 @app.route("/login", methods=['POST'])
 def login():

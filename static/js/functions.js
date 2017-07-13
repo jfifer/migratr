@@ -12,13 +12,26 @@ function login() {
     });
 }
 
-function partnerSearch() {
+function partnerSearch(name) {
     $.ajax({
-        url: '/partnerSearch',
-        data: $('#partnerSearch').serialize(),
-        type: 'POST',
+        url: '/partner/'+name,
+        type: 'GET',
         success: function(res) {
-            console.log(res);
+            var source  = [ ];
+            var mapping = { };
+            $.each(res, function(k, v) {
+                source.push(v);
+                mapping[v] = k;
+            });
+            
+            $("#resellerSearchBox").autocomplete({
+                source: source,
+                select: function(e, ui) {
+                    resellerId = mapping[ui.item.value];
+                    $('#resellerSearchBox').val(resellerId);
+                    customerSearch(resellerId);
+                }
+            });
         }, error: function(res) {
             console.log(res);
         }
@@ -26,5 +39,8 @@ function partnerSearch() {
 }
 
 $(document).ready(function() {
-    $('#targetPartnerSearch').click(function(e) { e.preventDefault(); partnerSearch(); });
+    $('#resellerSearchBox').keyup(function(e) {
+        e.preventDefault();
+        partnerSearch($(this).val());
+    });
 });
