@@ -2,8 +2,6 @@ from functools import wraps
 from flask import Flask, flash, redirect, render_template, request, Response, session, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy as sqlalchemy
 from sqlalchemy import create_engine, text
-# from sqlalchemy.orm import scoped_session, sessionmaker
-# from sqlalchemy.ext.declarative import declarative_base
 import os
 import sys
 import json
@@ -33,6 +31,15 @@ def partnerSearch(partner):
     db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
     cnx = db.connect()
     query = "SELECT resellerId, companyName FROM reseller WHERE companyName LIKE '%s'" % (partner+'%')
+    result = cnx.execute(text(query)).fetchall()
+    return jsonify(dict(result))
+
+@app.route("/customer/<int:resellerId>/<string:customer>", methods=['GET'])
+@requires_auth
+def customerSearch(resellerId, customer):
+    db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
+    cnx = db.connect()
+    query = "SELECT customerId, companyName FROM customer WHERE companyName LIKE '%s' AND resellerId=%s" % (customer+'%', resellerId)
     result = cnx.execute(text(query)).fetchall()
     return jsonify(dict(result))
  
