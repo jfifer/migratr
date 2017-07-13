@@ -1,30 +1,20 @@
+var RESELLERID, CUSTOMERID, BRANCHID, SERVERID;
+
 function getContextByCustomer(customerId) {
     $("#pbxSearchBox").val(null);
     $.ajax({
         url: '/pbx/'+customerId,
         type: 'GET',
         success: function(res) {
-            var source  = [ ];
-            var mapping = { };
-            $.each(res, function(k, v) {
-                source.push(v);
-                mapping[v] = k;
-            });
-            console.log(source);
-            $("#pbxSearchBox").autocomplete({
-                source: source,
-                select: function(e, ui) {
-                    BRANCHID = mapping[ui.item.value];
-                    $('#pbxSearchBox').val(BRANCHID);
-                }
-            });
+            BRANCHID = res.branchId;
+            findServersByBranch(BRANCHID);
         }, error: function(res) {
             console.log(res);
         }
     }); 
 }
 
-function doSearch(url, target) {
+function doSearch(url, target, type) {
     $.ajax({
         url: url,
         type: 'GET',
@@ -38,8 +28,26 @@ function doSearch(url, target) {
             target.autocomplete({
                 source: source,
                 select: function(e, ui) {
-                    RESELLERID = mapping[ui.item.value];
-                    target.val(RESELLERID);
+                    id = mapping[ui.item.value];
+                    switch(type) {
+                        case 'reseller':
+                            RESELLERID = id;
+                            break;
+                        case 'customer':
+                            CUSTOMERID = id;
+                            BRANCHID = null;
+                            break;
+                        case 'pbx':
+                            BRANCHID = id;
+                            CUSTOMERID = null;
+                            break;
+                        case 'server':
+                            SERVERID = id;
+                            break;
+                        default:
+                            break;
+                    }
+                    target.val(id);
                 }
             });
         }, error: function(res) {
@@ -49,16 +57,21 @@ function doSearch(url, target) {
 }
 
 $(document).ready(function() {
+    $('#fsSearchBox').keyup(function(e) {
+        e.preventDefault();
+        url = "/server/"+$(this).val();
+        doSearch(url, $(this), 'server');
+    });
     $('#resellerSearchBox').keyup(function(e) {
         e.preventDefault();
         url = "/partner/"+$(this).val();
-        doSearch(url, $(this));
+        doSearch(url, $(this), 'reseller');
     });
     $('#customerSearchBox').keyup(function(e) {
         e.preventDefault();
         resellerId = $('#resellerSearchBox').val();
-        url = '/customer/'+resellerId+'/'+$(this).val();
-        doSearch(url, $(this));
+        url = '/customer/'+RESELLERID+'/'+$(this).val();
+        doSearch(url, $(this), 'customer');
     }).click(function(e) {
         e.preventDefault();
         $('#pbxSearchBox').val('');
@@ -66,8 +79,8 @@ $(document).ready(function() {
     $('#pbxSearchBox').keyup(function(e) {
         e.preventDefault();
         resellerId = $('#resellerSearchBox').val();
-        url = '/pbx/'+resellerId+'/'+$(this).val();
-        doSearch(url, $(this));
+        url = '/pbx/'+RESELLERID+'/'+$(this).val();
+        doSearch(url, $(this), 'pbx');
     }).click(function(e) {
         e.preventDefault();
         $('#customerSearchBox').val('');

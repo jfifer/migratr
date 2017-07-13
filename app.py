@@ -77,6 +77,15 @@ def getContextByCustomer(customerId):
     result = cnx.execute(text(query)).fetchone()
     return jsonify(dict(result))
 
+@app.route("/server/<string:hostname>", methods=['GET'])
+@requires_auth
+def getServers(hostname):
+    db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
+    cnx = db.connect()
+    query = "SELECT serverId, hostname FROM server WHERE serverStatus <> 0 AND hostname LIKE '%s'" % (hostname+'%')
+    result = cnx.execute(text(query)).fetchall()
+    return jsonify(dict(result))
+
 if __name__ == "__main__":
     app.secret_key = os.urandom(12)
     app.run(debug=True)
