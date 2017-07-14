@@ -41,6 +41,11 @@ def login():
     session['logged_in'] = True
     return redirect("/")
 
+@app.route("/new")
+@requires_auth
+def new():
+    return render_template("new.html")
+
 @app.route("/partner/<string:partner>", methods=['GET'])
 @requires_auth
 def partnerSearch(partner):
@@ -77,12 +82,17 @@ def getContextByCustomer(customerId):
     result = cnx.execute(text(query)).fetchone()
     return jsonify(dict(result))
 
-@app.route("/server/<string:hostname>", methods=['GET'])
+@app.route("/server/<string:hostname>/<int:status>", methods=['GET'])
 @requires_auth
-def getServers(hostname):
+# 0-inactive, 1-open, 2-closed
+def getServers(hostname, status):
+    statusQry = "serverStatus = 1"
+    if status is 2:
+        statusQry = "serverStatus <> 0"
+        
     db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
     cnx = db.connect()
-    query = "SELECT serverId, hostname FROM server WHERE serverStatus <> 0 AND hostname LIKE '%s'" % (hostname+'%')
+    query = "SELECT serverId, hostname FROM server WHERE %s AND hostname LIKE '%s'" % (statusQry, hostname+'%')
     result = cnx.execute(text(query)).fetchall()
     return jsonify(dict(result))
 

@@ -29,6 +29,7 @@ function doSearch(url, target, type) {
                 source: source,
                 select: function(e, ui) {
                     id = mapping[ui.item.value];
+                    fsStatus = false;
                     switch(type) {
                         case 'reseller':
                             RESELLERID = id;
@@ -58,29 +59,40 @@ function doSearch(url, target, type) {
 
 $(document).ready(function() {
     $('#fsSearchBox').keyup(function(e) {
-        e.preventDefault();
-        url = "/server/"+$(this).val();
-        doSearch(url, $(this), 'server');
+        if($(this).val() !== '') {
+            e.preventDefault();
+            fsClosed = "1";
+            if($('#fsServerStatus')[0].checked) { fsClosed = "2"; }
+            console.log(fsClosed);
+            url = "/server/"+$(this).val()+"/"+fsClosed;
+            doSearch(url, $(this), 'server');
+        }
     });
     $('#resellerSearchBox').keyup(function(e) {
-        e.preventDefault();
-        url = "/partner/"+$(this).val();
-        doSearch(url, $(this), 'reseller');
+        if($(this).val() !== '') {
+            e.preventDefault();
+            url = "/partner/"+$(this).val();
+            doSearch(url, $(this), 'reseller');
+        }
     });
     $('#customerSearchBox').keyup(function(e) {
-        e.preventDefault();
-        resellerId = $('#resellerSearchBox').val();
-        url = '/customer/'+RESELLERID+'/'+$(this).val();
-        doSearch(url, $(this), 'customer');
+        if($(this).val() !== '') {
+            e.preventDefault();
+            resellerId = $('#resellerSearchBox').val();
+            url = '/customer/'+RESELLERID+'/'+$(this).val();
+            doSearch(url, $(this), 'customer');
+        }
     }).click(function(e) {
         e.preventDefault();
         $('#pbxSearchBox').val('');
     });
     $('#pbxSearchBox').keyup(function(e) {
-        e.preventDefault();
-        resellerId = $('#resellerSearchBox').val();
-        url = '/pbx/'+RESELLERID+'/'+$(this).val();
-        doSearch(url, $(this), 'pbx');
+        if($(this).val() !== '') {
+            e.preventDefault();
+            resellerId = $('#resellerSearchBox').val();
+            url = '/pbx/'+RESELLERID+'/'+$(this).val();
+            doSearch(url, $(this), 'pbx');
+        }
     }).click(function(e) {
         e.preventDefault();
         $('#customerSearchBox').val('');

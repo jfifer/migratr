@@ -4,47 +4,16 @@
   {{ super() }}
 {% endblock %}
 {% block content %}
-  <div class="row">
-    <div class="panel panel-default col-md-12">
-        <form id="partnerSearch">
+<div class="container">
+    <div class="row">
+        <div class="panel panel-default col-md-12">
             <div class="panel-heading">
-                Search
+                <a href="/new">New</a>
             </div>
-            <div class="panel-body centered">
-              <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label for="resellerSearchBox">Partner: </label><br />
-                        <input id="resellerSearchBox" class="form-component serverLookup" />
-                    </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label for="customerSearchBox">Customer: </label><br />
-                        <input id="customerSearchBox" class="form-component serverLookup" />
-                    </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label for="pbxSearchBox">PBX Context: </label><br />
-                        <input id="pbxSearchBox" class="form-component serverLookup" />
-                    </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label for="fsSearchBox">Destination Server: </label><br />
-                        <input id="fsSearchBox" class="form-component serverLookup" />
-                    </div>
-                </div>
-              </div>
+            <div class="panel-body">
+                
             </div>
-        </form>
+        </div>
     </div>
-  </div>
+</div>
 {% endblock %}
