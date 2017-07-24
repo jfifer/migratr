@@ -1,10 +1,14 @@
 from functools import wraps
 from flask import Flask, flash, redirect, render_template, request, Response, session, abort, jsonify
+import pymysql
+pymysql.install_as_MySQLdb()
 from flask_sqlalchemy import SQLAlchemy as sqlalchemy
 from sqlalchemy import create_engine, text
 import os
 import sys
 import json
+import datetime
+import time
 
 if sys.version_info[0] < 3:
     raise Exception("Python 3 or a more recent version is required.")
@@ -96,6 +100,16 @@ def getServers(hostname, status):
     result = cnx.execute(text(query)).fetchall()
     return jsonify(dict(result))
 
+@app.route("/migrations/<int:runat>", methods=['GET'])
+@requires_auth
+def getMigrationsByTime(runat):
+    db = create_engine('mysql://root:narwhal@localhost/migratr')
+    cnx = db.connect()
+    run_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(runat))
+    query = "SELECT id, UNIX_TIMESTAMP(run_at) from migrations where TIMESTAMP(run_at) IS NOT NULL AND TIMESTAMP(run_at) > '%s'" % (run_at)
+    result = cnx.execute(text(query)).fetchall()
+    return jsonify(dict(result))
+
 if __name__ == "__main__":
     app.secret_key = os.urandom(12)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
