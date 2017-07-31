@@ -6,3 +6,22 @@
     color: #274f91;
     cursor: pointer;
 }
+
+.sort-header.active {
+    color: #268e79;
+    position: relative;
+}
+.sort-header.active.asc:after {
+    content: "\f077";
+    font-family: FontAwesome;
+    right: 5px;
+    position: absolute;
+    top: 0;
+}
+.sort-header.active.desc:after {
+    content: "\f078";
+    font-family: FontAwesome;
+    right: 5px;
+    position: absolute;
+    top: 0;
+}
