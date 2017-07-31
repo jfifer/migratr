@@ -7,12 +7,26 @@
 <script src="{{ url_for('static', filename='js/home.js') }}"></script>
 <div class="container">
     <div class="row">
-        <div class="panel panel-default col-md-12">
+        <div class="panel panel-default col-lg-12">
             <div class="panel-heading">
                 <a href="/new">New</a>
             </div>
             <div class="panel-body">
-                
+              <table id="future_migrations">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Source</th>
+                    <th>Destination</th>
+                    <th>Context</th>
+                    <th>Customer</th>
+                    <th>Reseller</th>
+                    <th>Run At</th>
+                    <th>State</th>
+                  </tr>
+                </thead>
+                <tbody id="result-body"></tbody>
+	      </table>    
             </div>
         </div>
     </div>

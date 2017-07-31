@@ -106,9 +106,20 @@ def getMigrationsByTime(runat):
     db = create_engine('mysql://root:narwhal@localhost/migratr')
     cnx = db.connect()
     run_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(runat))
-    query = "SELECT id, UNIX_TIMESTAMP(run_at) from migrations where TIMESTAMP(run_at) IS NOT NULL AND TIMESTAMP(run_at) > '%s'" % (run_at)
+    query = "SELECT * from migrations where TIMESTAMP(run_at) IS NOT NULL AND TIMESTAMP(run_at) > '%s'" % (run_at)
     result = cnx.execute(text(query)).fetchall()
-    return jsonify(dict(result))
+    data = []
+    for res in result:
+      data.append({"id": res[0],
+        "src_server": res[2],
+        "dst_server": res[4],
+        "context": res[5],
+        "customer": res[8],
+        "reseller": res[10],
+        "run_at": res[11],
+        "state": res[12]
+      })
+    return jsonify(data)
 
 if __name__ == "__main__":
     app.secret_key = os.urandom(12)
