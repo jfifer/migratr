@@ -100,13 +100,13 @@ def getServers(hostname, status):
     result = cnx.execute(text(query)).fetchall()
     return jsonify(dict(result))
 
-@app.route("/migrations/<int:runat>", methods=['GET'])
+@app.route("/migrations/<int:runat>/<string:sortby>/<string:sorthow>", methods=['GET'])
 @requires_auth
-def getMigrationsByTime(runat):
+def getMigrationsByTime(runat, sortby='id', sorthow='ASC'):
     db = create_engine('mysql://root:narwhal@localhost/migratr')
     cnx = db.connect()
     run_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(runat))
-    query = "SELECT * from migrations where TIMESTAMP(run_at) IS NOT NULL AND TIMESTAMP(run_at) > '%s'" % (run_at)
+    query = "SELECT * from migrations where TIMESTAMP(run_at) IS NOT NULL AND TIMESTAMP(run_at) > '%s' ORDER BY %s %s" % (run_at, sortby, sorthow)
     result = cnx.execute(text(query)).fetchall()
     data = []
     for res in result:
