@@ -86,6 +86,40 @@ def getContextByCustomer(customerId):
     result = cnx.execute(text(query)).fetchone()
     return jsonify(dict(result))
 
+@app.route("/server/reseller/<int:resellerId>", methods=['GET'])
+@requires_auth
+def getGroups(resellerId):
+  db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
+  cnx = db.connect()
+  query = "SELECT serverGroupId, serverTypeId, name FROM serverGroup WHERE resellerId=%s" % (resellerId)
+  result = cnx.execute(text(query)).fetchall()
+  data = []
+  for res in result:
+    data.append({
+      "id": res[0],
+      "typeId": res[1],
+      "name": res[2]
+    })
+  return jsonify(data)
+
+@app.route("/server/group/<int:groupId>/<string:hostname>/<int:status>", methods=['GET'])
+@requires_auth
+def getServersByGroup(groupId, hostname, status):
+  statusQry = "serverStatus = 1"
+  if status is 2:
+      statusQry = "serverStatus <> 0"
+  db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
+  cnx = db.connect()
+  query = "SELECT serverId, hostname FROM server WHERE serverGroupId=%s AND %s AND hostname LIKE '%s'" % (groupId, statusQry, hostname+'%')
+  result = cnx.execute(text(query)).fetchall()
+  data = []
+  for res in result:
+    data.append({
+      'id': res[0],
+      'hostname': res[1]
+    })
+  return jsonify(data)
+
 @app.route("/server/<string:hostname>/<int:status>", methods=['GET'])
 @requires_auth
 # 0-inactive, 1-open, 2-closed
@@ -120,6 +154,8 @@ def getMigrationsByTime(runat, sortby='id', sorthow='ASC'):
         "state": res[12]
       })
     return jsonify(data)
+
+
 
 if __name__ == "__main__":
     app.secret_key = os.urandom(12)

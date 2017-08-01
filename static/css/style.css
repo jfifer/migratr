@@ -2,11 +2,27 @@
     text-align: center;
 }
 
+.header-menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.header-menu li {
+    float: left;
+}
+
+.header-menu li a {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+}
+
 .sort-header {
     color: #274f91;
     cursor: pointer;
 }
-
 .sort-header.active {
     color: #268e79;
     position: relative;

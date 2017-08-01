@@ -14,6 +14,20 @@ function getContextByCustomer(customerId) {
     }); 
 }
 
+function getServerGroups(id) {
+  $.ajax({
+    url: '/server/reseller/'+id,
+    type: 'GET',
+    success: function(res) {
+      $('#serverGroupSearch option').remove();
+      $.each(res, function(k,v) {
+        el = "<option value='"+v.id+"'>"+v.name+"</option>";
+        $('#serverGroupSearch').append(el).prop('disabled', false);
+      });
+    }
+  });
+}
+
 function doSearch(url, target, type) {
     $.ajax({
         url: url,
@@ -32,6 +46,7 @@ function doSearch(url, target, type) {
                     fsStatus = false;
                     switch(type) {
                         case 'reseller':
+                            getServerGroups(id);
                             RESELLERID = id;
                             break;
                         case 'customer':
@@ -57,14 +72,29 @@ function doSearch(url, target, type) {
     });
 }
 
+function getServersByGroup(serverGroupId) {
+    $.ajax({
+        url: '/server/group/'+serverGroupId,
+        type: "GET",
+        success: function(res) {
+          $.each(res, function(k, v) {
+            console.log(v);
+          });
+        }
+    });
+}
+
 $(document).ready(function() {
     $('#fsSearchBox').keyup(function(e) {
         if($(this).val() !== '') {
             e.preventDefault();
             fsClosed = "1";
             if($('#fsServerStatus')[0].checked) { fsClosed = "2"; }
-            console.log(fsClosed);
-            url = "/server/"+$(this).val()+"/"+fsClosed;
+            if($('#serverGroupSearch').val() === '') {
+              url = "/server/group/"+$('#serverGroupSearch')+"/"+$(this).val()+"/"+fsClosed;
+            } else {
+              url = "/server/"+$(this).val()+"/"+fsClosed;
+            }
             doSearch(url, $(this), 'server');
         }
     });
@@ -74,6 +104,9 @@ $(document).ready(function() {
             url = "/partner/"+$(this).val();
             doSearch(url, $(this), 'reseller');
         }
+    });
+    $('#serverGroupSearch').change(function(e) {
+        doSearch('/server/group/'+$(this).val(), $('#fsSearchBox'), 'server');
     });
     $('#customerSearchBox').keyup(function(e) {
         if($(this).val() !== '') {
