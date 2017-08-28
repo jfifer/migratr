@@ -4,6 +4,7 @@ import pymysql
 pymysql.install_as_MySQLdb()
 from flask_sqlalchemy import SQLAlchemy as sqlalchemy
 from sqlalchemy import create_engine, text
+from models import Migration
 import os
 import sys
 import json
@@ -14,6 +15,8 @@ if sys.version_info[0] < 3:
     raise Exception("Python 3 or a more recent version is required.")
 
 app = Flask(__name__)
+app.config.from_pyfile('app.cfg')
+db = sqlalchemy(app)
 
 def requires_auth(f):
     @wraps(f)
@@ -28,6 +31,10 @@ def requires_auth(f):
 def index():
     return render_template(
         'home.html')
+
+@app.route("/test")
+def test():
+    return render_template('test.html')
 
 @app.route("/login", methods=['POST'])
 def login():
