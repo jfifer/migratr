@@ -40,7 +40,7 @@ def test():
 def login():
     user = request.form['username']
     password = request.form['password']
-    db = create_engine('mysql://****:****@backup-db.webapp.coredial.com/portal')
+    db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
     cnx = db.connect()
     query = "SELECT userId FROM user WHERE email='%s' AND password=SHA1('%s')" % (user, password)
     
@@ -60,7 +60,7 @@ def new():
 @app.route("/partner/<string:partner>", methods=['GET'])
 @requires_auth
 def partnerSearch(partner):
-    db = create_engine('mysql://****:*****@backup-db.webapp.coredial.com/portal')
+    db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
     cnx = db.connect()
     query = "SELECT resellerId, companyName FROM reseller WHERE companyName LIKE '%s'" % (partner+'%')
     result = cnx.execute(text(query)).fetchall()
@@ -69,7 +69,7 @@ def partnerSearch(partner):
 @app.route("/customer/<int:resellerId>/<string:customer>", methods=['GET'])
 @requires_auth
 def customerSearch(resellerId, customer):
-    db = create_engine('mysql://****:****@backup-db.webapp.coredial.com/portal')
+    db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
     cnx = db.connect()
     query = "SELECT customerId, companyName FROM customer WHERE companyName LIKE '%s' AND resellerId=%s" % (customer+'%', resellerId)
     result = cnx.execute(text(query)).fetchall()
@@ -78,7 +78,7 @@ def customerSearch(resellerId, customer):
 @app.route("/pbx/<int:resellerId>/<string:context>", methods=['GET'])
 @requires_auth
 def pbxSearch(resellerId, context):
-    db = create_engine('mysql://****:****@backup-db.webapp.coredial.com/portal')
+    db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
     cnx = db.connect()
     query = "SELECT branchId, description FROM branch WHERE description LIKE '%s' AND resellerId=%s" % (context+'%', resellerId)
     result = cnx.execute(text(query)).fetchall()
@@ -87,7 +87,7 @@ def pbxSearch(resellerId, context):
 @app.route("/pbx/<int:customerId>", methods=['GET'])
 @requires_auth
 def getContextByCustomer(customerId):
-    db = create_engine('mysql://****:****@backup-db.webapp.coredial.com/portal')
+    db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
     cnx = db.connect()
     query = "SELECT b.branchId, b.description FROM branch b JOIN customer c ON b.customerId=c.customerId WHERE c.customerId=%s" % (customerId)
     result = cnx.execute(text(query)).fetchone()
@@ -96,7 +96,7 @@ def getContextByCustomer(customerId):
 @app.route("/server/reseller/<int:resellerId>", methods=['GET'])
 @requires_auth
 def getGroups(resellerId):
-  db = create_engine('mysql://****:****@backup-db.webapp.coredial.com/portal')
+  db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
   cnx = db.connect()
   query = "SELECT serverGroupId, serverTypeId, name FROM serverGroup WHERE resellerId=%s" % (resellerId)
   result = cnx.execute(text(query)).fetchall()
@@ -115,7 +115,7 @@ def getServersByGroup(groupId, hostname, status):
   statusQry = "serverStatus = 1"
   if status is 2:
       statusQry = "serverStatus <> 0"
-  db = create_engine('mysql://****:****@backup-db.webapp.coredial.com/portal')
+  db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
   cnx = db.connect()
   query = "SELECT serverId, hostname FROM server WHERE serverGroupId=%s AND %s AND hostname LIKE '%s'" % (groupId, statusQry, hostname+'%')
   result = cnx.execute(text(query)).fetchall()
@@ -135,7 +135,7 @@ def getServers(hostname, status):
     if status is 2:
         statusQry = "serverStatus <> 0"
         
-    db = create_engine('mysql:/****:****@backup-db.webapp.coredial.com/portal')
+    db = create_engine('mysql://spbilling:b1cycl3s@backup-db.webapp.coredial.com/portal')
     cnx = db.connect()
     query = "SELECT serverId, hostname FROM server WHERE %s AND hostname LIKE '%s'" % (statusQry, hostname+'%')
     result = cnx.execute(text(query)).fetchall()
@@ -144,7 +144,7 @@ def getServers(hostname, status):
 @app.route("/migrations/<int:runat>/<string:sortby>/<string:sorthow>", methods=['GET'])
 @requires_auth
 def getMigrationsByTime(runat, sortby='id', sorthow='ASC'):
-    db = create_engine('mysql://***:****@localhost/migratr')
+    db = create_engine('mysql://root:narwhal@localhost/migratr')
     cnx = db.connect()
     run_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(runat))
     query = "SELECT * from migrations where TIMESTAMP(run_at) IS NOT NULL AND TIMESTAMP(run_at) > '%s' ORDER BY %s %s" % (run_at, sortby, sorthow)
