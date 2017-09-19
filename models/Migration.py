@@ -6,6 +6,8 @@ from sqlalchemy import create_engine, text
 db = sqlalchemy()
 
 class Migration(db.Model):
+  __bind_key__ = 'migrations'
+  __tablename__ = 'migrations'
   id = db.Column(db.Integer, primary_key=True)
   src_server_id = db.Column(db.Integer)
   src_server_name = db.Column(db.String(255))

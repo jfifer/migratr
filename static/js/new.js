@@ -21,7 +21,7 @@ function getServerGroups(id) {
     success: function(res) {
       $('#serverGroupSearch option').remove();
       $.each(res, function(k,v) {
-        el = "<option value='"+v.id+"'>"+v.name+"</option>";
+        el = "<option value='"+k+"'>"+v+"</option>";
         $('#serverGroupSearch').append(el).prop('disabled', false);
       });
     }
@@ -73,6 +73,7 @@ function doSearch(url, target, type) {
 }
 
 function getServersByGroup(serverGroupId) {
+    console.log('crap');
     $.ajax({
         url: '/server/group/'+serverGroupId,
         type: "GET",
@@ -91,9 +92,9 @@ $(document).ready(function() {
             fsClosed = "1";
             if($('#fsServerStatus')[0].checked) { fsClosed = "2"; }
             if($('#serverGroupSearch').val() === '') {
-              url = "/server/group/"+$('#serverGroupSearch')+"/"+$(this).val()+"/"+fsClosed;
-            } else {
               url = "/server/"+$(this).val()+"/"+fsClosed;
+            } else {
+              url = "/server/group/"+$('#serverGroupSearch').val()+"/"+$(this).val()+"/"+fsClosed;
             }
             doSearch(url, $(this), 'server');
         }
@@ -106,7 +107,7 @@ $(document).ready(function() {
         }
     });
     $('#serverGroupSearch').change(function(e) {
-        doSearch('/server/group/'+$(this).val(), $('#fsSearchBox'), 'server');
+        //doSearch('/server/group/'+$(this).val(), $('#fsSearchBox'), 'server');
     });
     $('#customerSearchBox').keyup(function(e) {
         if($(this).val() !== '') {

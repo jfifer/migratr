@@ -7,31 +7,7 @@
 <script src="{{ url_for('static', filename='js/home.js') }}"></script>
 <div class="container" style="width:90%;">
     <div class="row">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <ul class="header-menu">
-                    <a href="/">Home</a>
-                    <a href="/new">New</a>
-                </ul>
-            </div>
-            <div class="panel-body">
-              <table id="future_migrations" style="width:100%;">
-                <thead>
-                  <tr>
-                    <th class="sort-header asc active" id="id">ID</th>
-                    <th class="sort-header asc" id="src_server_name">Source</th>
-                    <th class="sort-header asc" id="dst_server_name">Destination</th>
-                    <th class="sort-header asc" id="context">Context</th>
-                    <th class="sort-header asc" id="customer_name">Customer</th>
-                    <th class="sort-header asc" id="reseller_name">Reseller</th>
-                    <th class="sort-header asc" id="run_at">Run At</th>
-                    <th class="sort-header asc" id="state">State</th>
-                  </tr>
-                </thead>
-                <tbody id="result-body"></tbody>
-	      </table>    
-            </div>
-        </div>
+      {{ test }}
     </div>
 </div>
 {% endblock %}
