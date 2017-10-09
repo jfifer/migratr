@@ -139,16 +139,29 @@ def getSourceServer(branchId):
     cnx.commit()
     return jsonify(result)
 
-@app.route("/migration/new/<int:resellerId>/<int:branchId>/<int:customerId>/<int:serverId>/<int:srcServerId>", methods=['GET', 'POST'])
+@app.route("/migration/preflight/<int:migration_id>", methods=['GET'])
 @requires_auth
-def create_migration(resellerId, branchId, customerId, serverId, srcServerId):
+def getMigration(migration_id):
+    result = migratrCNX.query(Migration.reseller_name, Migration.customer_name, Migration.context, Migration.src_server_name, Migration.dst_server_name).filter("migrations.id="+str(migration_id)).first()
+    migratrCNX.commit()
+    return jsonify(result)
+
+@app.route("/migration/new/", methods=['GET', 'POST'])
+@requires_auth
+def create_migration():
+    resellerId = request.form['resellerId']
+    branchId = request.form['branchId']
+    customerId = request.form['customerId']
+    src_server_id = request.form['src_server_id']
+    dst_server_id = request.form['dst_server_id']
+
     #get source server 
-    result = cnx.query(Server.serverId, Server.hostname).filter("server.serverId="+str(srcServerId)).first()
+    result = cnx.query(Server.serverId, Server.hostname).filter("server.serverId="+str(src_server_id)).first()
     cnx.commit()
     src_server_id = result[0]
     src_server_name = result[1]
     #get destination server
-    result = cnx.query(Server.serverId, Server.hostname).filter("server.serverId="+str(serverId)).first()
+    result = cnx.query(Server.serverId, Server.hostname).filter("server.serverId="+str(dst_server_id)).first()
     cnx.commit()
     dst_server_id = result[0]
     dst_server_name = result[1]
@@ -190,8 +203,12 @@ def create_migration(resellerId, branchId, customerId, serverId, srcServerId):
 
     migratrCNX.add(new_migration)
     migratrCNX.commit()
- 
-    return render_template('preflight.html')
+    return render_template('preflight.html', value=new_migration.id)
+
+@app.route("/migration/preflight/<string:server>", methods=['GET'])
+@requires_auth
+def checkServerConnection(server):
+    return Preflight.valid_ssh_conn('portal')
 
 @app.route("/migrations/<int:runat>/<string:sortby>/<string:sorthow>", methods=['GET'])
 @requires_auth

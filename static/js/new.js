@@ -10,6 +10,7 @@ function getContextByCustomer(customerId) {
             BRANCHID = res[0];
             getSourceServer(BRANCHID)
             $('#pbxSearchBox').val(res[1]);
+            $('#branchId').val(BRANCHID);
             //findServersByBranch(BRANCHID);
         }, error: function(res) {
             console.log(res);
@@ -67,10 +68,12 @@ function doSearch(url, target, type) {
                         case 'reseller':
                             getServerGroups(id);
                             RESELLERID = id;
+                            $('#resellerId').val(id);
                             break;
                         case 'customer':
                             CUSTOMERID = id;
                             getContextByCustomer(id);
+                            $('#customerId').val(id);
                             //BRANCHID = null;
                             break;
                         case 'pbx':
@@ -80,6 +83,7 @@ function doSearch(url, target, type) {
                             break;
                         case 'server':
                             SERVERID = id;
+                            $('#dst_server_id').val(id);
                             break;
                         default:
                             break;
@@ -113,6 +117,7 @@ function getSourceServer(branchId) {
           srcServer = res[1];
           SRCSERVERID = res[0];
           $('#sourceServer').html(srcServer);
+          $('#src_server_id').val(SRCSERVERID);
         }
     });
 }
@@ -173,9 +178,9 @@ $(document).ready(function() {
         e.preventDefault();
         $('#customerSearchBox').val('');
     });
-    $('#new_migration').click(function(e) {
+    /* $('#new_migration').click(function(e) {
         e.preventDefault();
-        console.log(RESELLERID, CUSTOMERID, BRANCHID, SERVERID);
-        createMigration(RESELLERID, BRANCHID, CUSTOMERID, SERVERID, SRCSERVERID);
-    });
+        //console.log(RESELLERID, CUSTOMERID, BRANCHID, SERVERID);
+        //createMigration(RESELLERID, BRANCHID, CUSTOMERID, SERVERID, SRCSERVERID);
+    }); */
 });

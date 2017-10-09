@@ -4,8 +4,22 @@
   {{ super() }}
 {% endblock %}
 {% block content %}
-<script src="{{ url_for('static', filename='js/new.js') }}"></script>
+<script src="{{ url_for('static', filename='js/preflight.js') }}"></script>
 <div class="container" style="width:90%;">
-  hi
+   <input id='migrationId' type='hidden' value='{{ value }}' /> 
+   <div class="row">
+      <div class="panel-body centered">
+         <p>Reseller: <span id="resellerName"></span></p>
+         <p>Customer: <span id="customerName"></span></p>
+         <p>Context: <span id="contextName"></span></p>
+         <p>Current Server: <span id="src_server"></span></p>
+         <p>Destination Server: <span id="dst_server"></span></p>
+      </div>
+   </div>
+   <div class="row">
+      <div class="panel-body centered">
+         <p>Portal Connection: <span id="portalCnx"></span></p>
+      </div>
+   </div>
 </div>
 {% endblock %}
