@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+<script src="{{ url_for('static', filename='js/new.js') }}"></script>
+<div class="container" style="width:90%;">
+  hi
+</div>
+{% endblock %}

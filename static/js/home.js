@@ -6,12 +6,6 @@ function getDate() {
     return d/1000;
 }
 
-function wtf() {
-    $.ajax({
-      url: "/test"
-    });
-}
-
 function getMigrations(date, sortby, sorthow) {
     $('#result-body').html('');
     $.ajax({

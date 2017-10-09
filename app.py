@@ -93,9 +93,16 @@ def pbxSearch(resellerId, context):
 @app.route("/pbx/<int:customerId>", methods=['GET'])
 @requires_auth
 def getContextByCustomer(customerId):
-    result = cnx.query(Branch.branchId, Branch.description, Customer.companyName).filter("customer.customerId="+str(customerId)).first()
-    cnx.commit()
-    return jsonify(dict(result))
+  result = cnx.query(Branch.branchId, Branch.description, Customer.companyName).filter("customer.customerId="+str(customerId)+" AND branch.customerId="+str(customerId)).first()
+  cnx.commit()
+  return jsonify(result)
+
+@app.route("/customer/<int:branchId>", methods=['GET'])
+@requires_auth
+def getCustomerByContext(branchId):
+  result = cnx.query(Branch.branchId, Customer.customerId, Customer.companyName).filter("branch.branchId="+str(branchId)).first()
+  cnx.commit()
+  return jsonify(dict(result))
 
 @app.route("/server/reseller/<int:resellerId>", methods=['GET'])
 @requires_auth
@@ -124,6 +131,67 @@ def getServers(hostname, status):
     result = cnx.query(Server.serverId, Server.hostname).filter(statusQry+" AND hostname LIKE '"+hostname+"%'").all()
     cnx.commit()
     return jsonify(dict(result))
+
+@app.route("/server/src/<int:branchId>", methods=['GET'])
+@requires_auth
+def getSourceServer(branchId):
+    result = cnx.query(Server.serverId, Server.hostname, Branch.branchId).filter("branch.branchId="+str(branchId)+" AND server.serverId=branch.featureServerId").first()
+    cnx.commit()
+    return jsonify(result)
+
+@app.route("/migration/new/<int:resellerId>/<int:branchId>/<int:customerId>/<int:serverId>/<int:srcServerId>", methods=['GET', 'POST'])
+@requires_auth
+def create_migration(resellerId, branchId, customerId, serverId, srcServerId):
+    #get source server 
+    result = cnx.query(Server.serverId, Server.hostname).filter("server.serverId="+str(srcServerId)).first()
+    cnx.commit()
+    src_server_id = result[0]
+    src_server_name = result[1]
+    #get destination server
+    result = cnx.query(Server.serverId, Server.hostname).filter("server.serverId="+str(serverId)).first()
+    cnx.commit()
+    dst_server_id = result[0]
+    dst_server_name = result[1]
+    #get context
+    result = cnx.query(Branch.branchId, Branch.description).filter("branch.branchId="+str(branchId)).first()
+    cnx.commit()
+    branchId = result[0]
+    context = result[1]
+    #get customer
+    result = cnx.query(Customer.customerId, Customer.companyName).filter("customer.customerId="+str(customerId)).first()
+    cnx.commit()
+    customerId = result[0]
+    customerName = result[1]
+    #get reseller
+    result = cnx.query(Reseller.resellerId, Reseller.companyName).filter("reseller.resellerId="+str(resellerId)).first()
+    cnx.commit()
+    resellerId = result[0]
+    resellerName = result[1]
+
+    cur_time = datetime.datetime.now()
+
+    new_migration = Migration(src_server_id,
+                              src_server_name,
+                              dst_server_id,
+                              dst_server_name,
+                              context,
+                              branchId,
+                              customerId,
+                              customerName,
+                              resellerId,
+                              resellerName,
+                              None,
+                              'new',
+                              cur_time,
+                              cur_time,
+                              None,
+                              None,
+                              None)
+
+    migratrCNX.add(new_migration)
+    migratrCNX.commit()
+ 
+    return render_template('preflight.html')
 
 @app.route("/migrations/<int:runat>/<string:sortby>/<string:sorthow>", methods=['GET'])
 @requires_auth

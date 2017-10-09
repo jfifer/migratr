@@ -1,4 +1,4 @@
-var RESELLERID, CUSTOMERID, BRANCHID, SERVERID;
+var RESELLERID, CUSTOMERID, BRANCHID, SERVERID, SRCSERVERID;
 
 function getContextByCustomer(customerId) {
     $("#pbxSearchBox").val(null);
@@ -6,12 +6,31 @@ function getContextByCustomer(customerId) {
         url: '/pbx/'+customerId,
         type: 'GET',
         success: function(res) {
-            BRANCHID = res.branchId;
-            findServersByBranch(BRANCHID);
+            console.log(res);
+            BRANCHID = res[0];
+            getSourceServer(BRANCHID)
+            $('#pbxSearchBox').val(res[1]);
+            //findServersByBranch(BRANCHID);
         }, error: function(res) {
             console.log(res);
         }
     }); 
+}
+
+function getCustomerByContext(branchId) {
+    $("#customerSearchBox").val(null);
+    $.ajax({
+        url: '/customer/'+branchId,
+        type: 'GET',
+        success: function(res) {
+            console.log(res);
+            CUSTOMERID = res.customerId;
+            $('#customerSearchBox').val(res[1]);
+            //findServersByBranch(BRANCHID);
+        }, error: function(res) {
+            console.log(res);
+        }
+    });
 }
 
 function getServerGroups(id) {
@@ -51,10 +70,12 @@ function doSearch(url, target, type) {
                             break;
                         case 'customer':
                             CUSTOMERID = id;
-                            BRANCHID = null;
+                            getContextByCustomer(id);
+                            //BRANCHID = null;
                             break;
                         case 'pbx':
                             BRANCHID = id;
+                            //getCustomerByContext(id);
                             CUSTOMERID = null;
                             break;
                         case 'server':
@@ -73,7 +94,6 @@ function doSearch(url, target, type) {
 }
 
 function getServersByGroup(serverGroupId) {
-    console.log('crap');
     $.ajax({
         url: '/server/group/'+serverGroupId,
         type: "GET",
@@ -81,6 +101,28 @@ function getServersByGroup(serverGroupId) {
           $.each(res, function(k, v) {
             console.log(v);
           });
+        }
+    });
+}
+
+function getSourceServer(branchId) {
+    $.ajax({
+        url: '/server/src/'+branchId,
+        type: 'GET',
+        success: function(res) {
+          srcServer = res[1];
+          SRCSERVERID = res[0];
+          $('#sourceServer').html(srcServer);
+        }
+    });
+}
+
+function createMigration(resellerId, branchId, customerId, serverId, srcServerId) {
+    $.ajax({
+        url: '/migration/new/'+parseInt(resellerId)+'/'+parseInt(branchId)+'/'+parseInt(customerId)+'/'+parseInt(serverId)+'/'+parseInt(srcServerId),
+        type: 'POST',
+        success: function(res) {
+ 
         }
     });
 }
@@ -107,7 +149,7 @@ $(document).ready(function() {
         }
     });
     $('#serverGroupSearch').change(function(e) {
-        //doSearch('/server/group/'+$(this).val(), $('#fsSearchBox'), 'server');
+        doSearch('/server/group/'+$(this).val(), $('#fsSearchBox'), 'server');
     });
     $('#customerSearchBox').keyup(function(e) {
         if($(this).val() !== '') {
@@ -130,5 +172,10 @@ $(document).ready(function() {
     }).click(function(e) {
         e.preventDefault();
         $('#customerSearchBox').val('');
+    });
+    $('#new_migration').click(function(e) {
+        e.preventDefault();
+        console.log(RESELLERID, CUSTOMERID, BRANCHID, SERVERID);
+        createMigration(RESELLERID, BRANCHID, CUSTOMERID, SERVERID, SRCSERVERID);
     });
 });
